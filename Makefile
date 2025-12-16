@@ -15,20 +15,25 @@
 .DEFAULT_GOAL := help
 
 # Include all sub-makefiles
-include makefiles/_variables.mk
-include makefiles/docker.mk
-include makefiles/kind.mk
-include makefiles/services.mk
-include makefiles/helm.mk
+include main/makefiles/_variables.mk
+include main/makefiles/kind.mk
+include main/makefiles/services.mk
+include main/makefiles/helm.mk
+include main/makefiles/branch-based.mk
 
 ##@ General
 
 .PHONY: help
 
 help: ## Display this help
-	@awk 'BEGIN {FS = ":.*##"; printf "\n\033[1mUsage:\033[0m\n  make \033[36m<target>\033[0m [ENV=<env>]\n\n\033[1mEnvironments:\033[0m\n  local-kind (default), local-ubuntu, dev, staging, prod\n"} \
+	@awk 'BEGIN {FS = ":.*##"; printf "\n\033[1mUsage:\033[0m\n  make \033[36m<target>\033[0m\n\n\033[1mBranch-based Deployment:\033[0m\n  dev, staging, prod branches contain environment-specific configurations\n"} \
 		/^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } \
 		/^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-25s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
+	@echo ""
+	@echo "\033[1mQuick Deploy Commands:\033[0m"
+	@echo "  \033[36mdeploy-dev\033[0m                Switch to dev branch and deploy"
+	@echo "  \033[36mdeploy-staging\033[0m            Switch to staging branch and deploy"
+	@echo "  \033[36mdeploy-prod\033[0m               Switch to prod branch and deploy"
 	@echo ""
 	@echo "\033[1mPer-Service Commands:\033[0m"
 	@echo "  \033[36m<service>-build\033[0m           Build Docker image"
