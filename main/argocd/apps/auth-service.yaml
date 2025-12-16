@@ -6,7 +6,7 @@ metadata:
 spec:
   project: wealist
   source:
-    repoURL: https://github.com/your-org/wealist-project-advanced.git
+    repoURL: https://github.com/OrangesCloud/wealist-argo-helm.git 
     targetRevision: main
     path: helm/charts/auth-service
     helm:

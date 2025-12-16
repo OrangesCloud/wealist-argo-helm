@@ -6,13 +6,12 @@ metadata:
 spec:
   project: wealist
   source:
-    repoURL: https://github.com/your-org/wealist-project-advanced.git
+    repoURL: https://github.com/OrangesCloud/wealist-argo-helm.git 
     targetRevision: main
-    path: helm/charts/storage-service
+    path: main/helm/charts/storage-service
     helm:
       valueFiles:
         - values.yaml
-        - values-develop-registry-local.yaml
       parameters:
         - name: image.tag
           value: "latest"

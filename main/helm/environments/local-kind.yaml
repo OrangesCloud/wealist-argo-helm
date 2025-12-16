@@ -58,7 +58,7 @@ securityContext:
     drop: []  # Override base.yaml's drop ALL - local dev doesn't need strict caps
 
 # -----------------------------------------------------------------------------
-# Features Disabled for Local
+# Features Disabled for Local 로컬 환경에서의 설정
 # -----------------------------------------------------------------------------
 autoscaling:
   enabled: false
@@ -71,6 +71,33 @@ networkPolicy:
 
 podDisruptionBudget:
   enabled: false
+
+# -----------------------------------------------------------------------------
+# Service-Specific Scaling Configuration (새로 추가)
+# -----------------------------------------------------------------------------
+auth-service:
+  replicaCount: 2    # 인증 서비스 - 고가용성 필요
+
+board-service:
+  replicaCount: 2    # 게시판 - 트래픽 많음
+
+chat-service:
+  replicaCount: 3    # 채팅 - 실시간, 높은 처리량
+
+user-service:
+  replicaCount: 2    # 사용자 관리
+
+storage-service:
+  replicaCount: 2    # 파일 업로드/다운로드
+
+video-service:
+  replicaCount: 1    # 비디오 처리 - 리소스 집약적
+
+noti-service:
+  replicaCount: 1    # 알림 서비스
+
+frontend:
+  replicaCount: 1    # 프론트엔드
 
 # -----------------------------------------------------------------------------
 # Shared Configuration

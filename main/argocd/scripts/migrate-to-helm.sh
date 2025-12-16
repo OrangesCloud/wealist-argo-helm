@@ -1,66 +1,32 @@
 #!/bin/bash
-# =============================================================================
-# Migrate ArgoCD Applications from Kustomize to Helm
-# =============================================================================
-
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-APPS_DIR="$(cd "${SCRIPT_DIR}/../apps" && pwd)"
+echo "🚀 Starting ArgoCD deployment..."
 
-echo "🔄 Migrating ArgoCD Applications to Helm source..."
-echo ""
+# 1. ArgoCD 설치
+echo "📦 Installing ArgoCD..."
+kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
-# Services to update (existing files)
-SERVICES=(
-  "auth-service"
-  "board-service"
-  "chat-service"
-  "noti-service"
-  "frontend"
-)
+# 2. ArgoCD 서버 준비 대기
+echo "⏳ Waiting for ArgoCD server..."
+kubectl wait --for=condition=available --timeout=300s deployment/argocd-server -n argocd
 
-# Update existing service Applications
-for service in "${SERVICES[@]}"; do
-  app_file="${APPS_DIR}/${service}.yaml"
+# 3. 네임스페이스 생성
+echo "📁 Creating application namespace..."
+kubectl create namespace wealist-dev --dry-run=client -o yaml | kubectl apply -f -
 
-  if [ ! -f "$app_file" ]; then
-    echo "⚠️  ${service}.yaml not found, skipping..."
-    continue
-  fi
+# 4. AppProject 생성
+echo "🎯 Creating AppProject..."
+kubectl apply -f main/argocd/apps/project.yaml
 
-  echo "📝 Updating ${service}..."
+# 5. Root Application 생성
+echo "🌟 Creating Root Application..."
+kubectl apply -f main/argocd/apps/root-app.yaml
 
-  # Backup original
-  cp "$app_file" "${app_file}.backup"
-
-  # Replace Kustomize path with Helm path and add helm config
-  sed -i.tmp '
-    s|path: services/'${service}'/k8s/overlays/local|path: helm/charts/'${service}'|
-    /path: helm\/charts\/'${service}'/a\
-\    helm:\
-\      valueFiles:\
-\        - values.yaml\
-\        - values-develop-registry-local.yaml\
-\      parameters:\
-\        - name: image.tag\
-\          value: "latest"
-  ' "$app_file"
-
-  # Remove temporary file
-  rm -f "${app_file}.tmp"
-
-  echo "✅ ${service} updated"
-done
-
-echo ""
-echo "🎉 Migration complete!"
-echo ""
-echo "📋 Summary:"
-echo "  - Updated: ${#SERVICES[@]} existing Applications"
-echo "  - Backups: *.backup files created"
-echo ""
-echo "🔍 Next steps:"
-echo "  1. Review changes: git diff argocd/apps/"
-echo "  2. Create missing Applications (storage-service, video-service)"
-echo "  3. Test ArgoCD sync"
+# 6. 포트포워딩 시작
+echo "🌐 Starting port-forward..."
+echo "ArgoCD UI: https://localhost:8079"
+echo "Username: admin"
+echo "Password: $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)"
+kubectl port-forward svc/argocd-server -n argocd 8079:443
