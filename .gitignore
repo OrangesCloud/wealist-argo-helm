@@ -2,7 +2,6 @@
 # Build Artifacts & Binaries
 # ============================================
 /bin/
-/main
 /board-api
 /api
 *.exe
@@ -62,6 +61,13 @@ minio-data/
 uploads/
 storage/
 files/
+
+# ============================================
+# Local Secrets Override (개인별 실제 값)
+# ============================================
+main/helm/environments/local-kind-secrets.local.yaml
+main/helm/environments/dev-kind-secrets.local.yaml
+main/helm/environments/stageing-kind-secrets.local.yaml
 
 # ============================================
 # Log Files
