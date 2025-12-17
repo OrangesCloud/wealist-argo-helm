@@ -39,10 +39,10 @@ HELM_SECRETS_VALUES = $(HELM_ENVS_DIR)/$(ENV)-secrets.yaml
 HELM_SECRETS_FLAG = $(shell test -f $(HELM_SECRETS_VALUES) && echo "-f $(HELM_SECRETS_VALUES)")
 
 # Services list (all microservices)
-SERVICES = auth-service user-service board-service chat-service noti-service storage-service video-service frontend
+SERVICES = auth-service user-service board-service chat-service noti-service storage-service video-service
 
 # Services with project root build context (use shared package)
 ROOT_CONTEXT_SERVICES = chat-service noti-service storage-service user-service video-service
 
 # Services with local build context
-LOCAL_CONTEXT_SERVICES = auth-service board-service frontend
+LOCAL_CONTEXT_SERVICES = auth-service board-service

@@ -24,7 +24,10 @@ certManager:
 # -----------------------------------------------------------------------------
 # Deployment Settings
 # -----------------------------------------------------------------------------
-replicaCount: 1
+auth-service:
+  replicaCount: 2
+board-service:
+  replicaCount: 1
 
 image:
   pullPolicy: Always
