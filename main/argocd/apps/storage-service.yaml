@@ -7,7 +7,7 @@ spec:
   project: wealist
   source:
     repoURL: https://github.com/OrangesCloud/wealist-argo-helm.git 
-    targetRevision: main
+    targetRevision: dev
     path: main/helm/charts/storage-service
     helm:
       valueFiles:
@@ -20,7 +20,7 @@ spec:
           value: "localhost:5001"
   destination:
     server: https://kubernetes.default.svc
-    namespace: wealist-kind-local
+    namespace: wealist-dev 
   syncPolicy:
     automated:
       prune: true

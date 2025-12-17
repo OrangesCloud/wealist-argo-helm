@@ -7,12 +7,12 @@ spec:
   project: wealist
   source:
     repoURL: https://github.com/OrangesCloud/wealist-argo-helm.git 
-    targetRevision: main
+    targetRevision: dev
     path: main/helm/charts/auth-service
     helm:
       valueFiles:
         - values.yaml
-        - ../../environments/local-kind.yaml
+        - ../../environments/dev.yaml
       parameters:
         - name: image.tag
           value: "latest"
@@ -20,7 +20,7 @@ spec:
           value: "localhost:5001"
   destination:
     server: https://kubernetes.default.svc
-    namespace: wealist-kind-local
+    namespace: wealist-dev 
   syncPolicy:
     automated:
       prune: true
