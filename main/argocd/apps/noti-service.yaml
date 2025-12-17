@@ -17,7 +17,7 @@ spec:
           value: "latest"
   destination:
     server: https://kubernetes.default.svc
-    namespace: wealist-dev
+    namespace: wealist-kind-local # 여기 수정 다른 브런치면
   syncPolicy:
     automated:
       prune: true

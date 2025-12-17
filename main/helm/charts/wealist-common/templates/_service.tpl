@@ -24,3 +24,5 @@ spec:
   selector:
     {{- include "wealist-common.selectorLabels" . | nindent 4 }}
 {{- end }}
+
+

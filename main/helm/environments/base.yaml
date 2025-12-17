@@ -16,7 +16,7 @@ global:
 # -----------------------------------------------------------------------------
 # Default Deployment Settings
 # -----------------------------------------------------------------------------
-replicaCount: 1
+# replicaCount: 1
 
 image:
   pullPolicy: IfNotPresent

@@ -8,17 +8,16 @@ spec:
   source:
     repoURL: https://github.com/OrangesCloud/wealist-argo-helm.git 
     targetRevision: main
-    path: helm/charts/auth-service
+    path: main/helm/charts/auth-service
     helm:
       valueFiles:
         - values.yaml
-        - values-develop-registry-local.yaml
       parameters:
         - name: image.tag
           value: "latest"
   destination:
     server: https://kubernetes.default.svc
-    namespace: wealist-dev
+    namespace: wealist-kind-local
   syncPolicy:
     automated:
       prune: true
