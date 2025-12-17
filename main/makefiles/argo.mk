@@ -292,3 +292,110 @@ verify-secrets: ## Secrets 복호화 확인
 		echo "SealedSecret 상태:"; \
 		kubectl describe sealedsecret wealist-shared-secret -n wealist-$(ENVIRONMENT) 2>/dev/null || echo "SealedSecret도 없음"; \
 	fi
+# ... (기존 내용 유지) ...
+
+# ============================================
+# 로컬 개발 (Kind + Registry)
+# ============================================
+
+setup-local: ## 로컬 개발 환경 전체 설정 (Registry + 이미지 + Bootstrap)
+	$(MAKE) kind-setup
+	$(MAKE) load-infra-images
+	$(MAKE) build-and-push
+	$(MAKE) bootstrap
+	$(MAKE) deploy
+
+kind-setup: ## Kind 클러스터 + 로컬 Registry 생성
+	@echo -e "$(YELLOW)🏗️  Kind 클러스터 + Registry 설정...$(NC)"
+	@if [ -f "main/installShell/0.setup-cluster.sh" ]; then \
+		chmod +x main/installShell/0.setup-cluster.sh; \
+		cd main/installShell && ./0.setup-cluster.sh; \
+	else \
+		echo -e "$(RED)❌ 0.setup-cluster.sh not found$(NC)"; \
+		exit 1; \
+	fi
+	@echo -e "$(GREEN)✅ Kind 클러스터 + Registry 준비 완료$(NC)"
+
+load-infra-images: ## 인프라 이미지 로드 (PostgreSQL, Redis 등)
+	@echo -e "$(YELLOW)📦 인프라 이미지 로드 중...$(NC)"
+	@if [ -f "main/installShell/1.load_infra_images.sh" ]; then \
+		chmod +x main/installShell/1.load_infra_images.sh; \
+		cd main/installShell && ./1.load_infra_images.sh; \
+	else \
+		echo -e "$(RED)❌ 1.load_infra_images.sh not found$(NC)"; \
+		exit 1; \
+	fi
+	@echo -e "$(GREEN)✅ 인프라 이미지 로드 완료$(NC)"
+
+build-and-push: ## 서비스 이미지 빌드 및 푸시
+	@echo -e "$(YELLOW)🔨 서비스 이미지 빌드 및 푸시...$(NC)"
+	@if [ -f "main/installShell/2.build_services_and_load.sh" ]; then \
+		chmod +x main/installShell/2.build_services_and_load.sh; \
+		cd main/installShell && ./2.build_services_and_load.sh; \
+	else \
+		echo -e "$(RED)❌ 2.build_services_and_load.sh not found$(NC)"; \
+		exit 1; \
+	fi
+	@echo -e "$(GREEN)✅ 서비스 이미지 빌드 완료$(NC)"
+
+check-images: ## 로컬 레지스트리 이미지 확인
+	@echo -e "$(YELLOW)🔍 로컬 레지스트리 이미지 확인...$(NC)"
+	@echo ""
+	@echo "Registry catalog:"
+	@curl -s http://localhost:5001/v2/_catalog | jq -r '.repositories[]' || echo "No images found"
+	@echo ""
+	@echo "서비스 이미지 확인:"
+	@for svc in auth-service user-service board-service chat-service noti-service storage-service video-service; do \
+		echo -n "  $$svc: "; \
+		if curl -sf "http://localhost:5001/v2/$$svc/tags/list" > /dev/null 2>&1; then \
+			echo -e "$(GREEN)✅$(NC)"; \
+		else \
+			echo -e "$(RED)❌$(NC)"; \
+		fi; \
+	done
+
+# ============================================
+# 수정된 all 타겟
+# ============================================
+
+all: setup-local ## 전체 프로세스 (Registry + 이미지 + Bootstrap + 배포)
+	@echo ""
+	@echo -e "$(GREEN)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"
+	@echo -e "$(GREEN)✅ 전체 배포 완료!$(NC)"
+	@echo -e "$(GREEN)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"
+	@echo ""
+	@echo "ArgoCD UI: https://localhost:8079"
+	@echo "Username: admin"
+	@echo "Password: $$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)"
+	@echo ""
+	@echo "로컬 Registry: http://localhost:5001"
+	@echo "이미지 확인: make check-images"
+	@echo ""
+	@echo "다음 명령어로 포트 포워딩:"
+	@echo "  make ui"
+
+# ============================================
+# 기존 cluster-up 타겟 수정 (Registry 포함)
+# ============================================
+
+cluster-up-simple: ## Kind 클러스터만 생성 (Registry 없이)
+	@echo -e "$(YELLOW)📦 Kind 클러스터 생성 중...$(NC)"
+	@if kind get clusters | grep -q "$(CLUSTER_NAME)"; then \
+		echo -e "$(YELLOW)⚠️  클러스터가 이미 존재합니다: $(CLUSTER_NAME)$(NC)"; \
+		read -p "삭제하고 다시 만들까요? (y/N): " answer; \
+		if [ "$$answer" = "y" ] || [ "$$answer" = "Y" ]; then \
+			$(MAKE) cluster-down; \
+		else \
+			echo "기존 클러스터를 사용합니다."; \
+			exit 0; \
+		fi; \
+	fi
+	@if [ -f "main/installShell/kind-config.yaml" ]; then \
+		kind create cluster --name $(CLUSTER_NAME) --config main/installShell/kind-config.yaml; \
+	else \
+		kind create cluster --name $(CLUSTER_NAME); \
+	fi
+	@kubectl cluster-info
+	@echo -e "$(GREEN)✅ 클러스터 생성 완료$(NC)"
+
+# ... (나머지 기존 내용 유지) ...
