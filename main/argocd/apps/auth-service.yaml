@@ -3,6 +3,8 @@ kind: Application
 metadata:
   name: auth-service
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"  # infrastructure 이후 배포
 spec:
   project: wealist
   source:
