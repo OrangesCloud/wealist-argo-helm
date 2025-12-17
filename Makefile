@@ -17,9 +17,9 @@
 # Include all sub-makefiles
 include main/makefiles/_variables.mk
 include main/makefiles/kind.mk
-include main/makefiles/services.mk
 include main/makefiles/helm.mk
 include main/makefiles/branch-based.mk
+include main/makefiles/argo.mk
 
 ##@ General
 

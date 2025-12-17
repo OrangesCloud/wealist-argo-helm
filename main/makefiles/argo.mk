@@ -9,7 +9,7 @@ NC     := \033[0m
 
 # 변수
 CLUSTER_NAME ?= wealist-dev
-SEALED_SECRETS_KEY ?= sealed-secrets-dev-20251217-222043.key
+SEALED_SECRETS_KEY ?= sealed-secrets-dev-20251217-222517.key
 ENVIRONMENT ?= dev
 
 help: ## 도움말 표시
