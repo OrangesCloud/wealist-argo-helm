@@ -69,7 +69,7 @@ files/
 *-secrets.yaml
 dev-secret.yaml
 prod-secret.yaml
-
+*.key
 # SealedSecrets (safe to commit)
 !sealed-secret-*.yaml
 
