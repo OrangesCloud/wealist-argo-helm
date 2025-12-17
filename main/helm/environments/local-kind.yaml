@@ -59,6 +59,22 @@ securityContext:
 # -----------------------------------------------------------------------------
 # Features Disabled for Local 로컬 환경에서의 설정
 # -----------------------------------------------------------------------------
+# 로컬 개발환경에서 서비스별 replica 설정
+# 기본값은 각 서비스의 values.yaml에 정의됨 (현재 모두 1)
+# 필요에 따라 여기서 오버라이드 가능
+
+# 예시: auth-service만 2개로 늘리기
+auth-service:
+  replicaCount: 3
+board-service:
+  replicaCount: 2
+
+# 예시: frontend 3개로 늘리기  
+# frontend:
+#   replicaCount: 3
+
+
+
 autoscaling:
   enabled: false
 

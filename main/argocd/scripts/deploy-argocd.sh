@@ -53,11 +53,11 @@ sleep 30
 
 # 6. AppProject 생성
 echo "🎯 Creating AppProject..."
-kubectl apply -f main/argocd/apps/project.yaml
+kubectl apply -f ../apps/project.yaml
 
 # 7. Root Application 생성
 echo "🌟 Creating Root Application..."
-kubectl apply -f main/argocd/apps/root-app.yaml
+kubectl apply -f ../apps/root-app.yaml
 
 # 8. ArgoCD CLI 설정 (선택사항)
 echo "🔧 Setting up ArgoCD CLI access..."
