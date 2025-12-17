@@ -398,4 +398,3 @@ cluster-up-simple: ## Kind 클러스터만 생성 (Registry 없이)
 	@kubectl cluster-info
 	@echo -e "$(GREEN)✅ 클러스터 생성 완료$(NC)"
 
-# ... (나머지 기존 내용 유지) ...

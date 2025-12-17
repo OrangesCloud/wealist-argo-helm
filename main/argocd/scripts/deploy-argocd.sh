@@ -11,7 +11,7 @@ NC='\033[0m'
 
 # GitHub 저장소 정보
 REPO_URL="https://github.com/OrangesCloud/wealist-argo-helm.git"
-SEALED_SECRETS_KEY="${1:-sealed-secrets-dev-20251217-222043.key}"
+SEALED_SECRETS_KEY="${1:-sealed-secrets-dev-20251217-222517.key}"
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
