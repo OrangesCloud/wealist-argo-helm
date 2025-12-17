@@ -12,7 +12,7 @@ spec:
     helm:
       valueFiles:
         - values.yaml
-        - ../../environments/local-kind.yaml
+        - ../../environments/dev.yaml
       parameters:
         - name: image.tag
           value: "latest"

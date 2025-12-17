@@ -126,7 +126,7 @@ helm-upgrade-all: helm-deps-build ## Upgrade all charts
 			-n $(K8S_NAMESPACE); \
 	done
 	@echo "All charts upgraded!"
-
+# 브런치 환경마다 helm-uninstall-all ENV=dev 로 한번에 지울수 있음.
 helm-uninstall-all: ## Uninstall all charts
 	@echo "Uninstalling all charts (ENV=$(ENV), NS=$(K8S_NAMESPACE))..."
 	@for service in $(SERVICES); do \
