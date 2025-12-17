@@ -65,9 +65,9 @@ securityContext:
 
 # 예시: auth-service만 2개로 늘리기
 auth-service:
-  replicaCount: 3
+  replicaCount: 1
 board-service:
-  replicaCount: 2
+  replicaCount: 1
 
 # 예시: frontend 3개로 늘리기  
 # frontend:
