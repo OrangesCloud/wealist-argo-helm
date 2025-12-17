@@ -64,7 +64,14 @@ files/
 
 
 # Helm secrets
-main/helm/environments/*-secrets.yaml
+# Raw secrets (never commit)
+*-secret.yaml
+*-secrets.yaml
+dev-secret.yaml
+prod-secret.yaml
+
+# SealedSecrets (safe to commit)
+!sealed-secret-*.yaml
 
 # ============================================
 # Log Files
