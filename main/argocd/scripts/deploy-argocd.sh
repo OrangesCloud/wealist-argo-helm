@@ -180,6 +180,30 @@ fi
 echo ""
 
 # ============================================
+# 8.5. ArgoCD SealedSecret 적용
+# ============================================
+echo -e "${YELLOW}🔐 Step 8.5: Applying ArgoCD SealedSecret...${NC}"
+ARGOCD_SEALED_SECRET="main/argocd/sealed-secrets/wealist-argocd-secret.yaml"
+if [ -f "$ARGOCD_SEALED_SECRET" ]; then
+    kubectl apply -f "$ARGOCD_SEALED_SECRET"
+    echo -e "${GREEN}✅ ArgoCD SealedSecret applied${NC}"
+    
+    # 복호화 확인
+    echo "⏳ Waiting for ArgoCD secret decryption..."
+    sleep 10
+    
+    if kubectl get secret wealist-argocd-secret -n wealist-dev &> /dev/null; then
+        echo -e "${GREEN}✅ ArgoCD secret successfully decrypted!${NC}"
+    else
+        echo -e "${YELLOW}⚠️  ArgoCD secret not yet decrypted${NC}"
+        echo "This may be normal if using new keys"
+    fi
+else
+    echo -e "${YELLOW}⚠️  ArgoCD SealedSecret file not found: $ARGOCD_SEALED_SECRET${NC}"
+fi
+echo ""
+
+# ============================================
 # 9. GitHub 저장소 인증
 # ============================================
 echo -e "${YELLOW}🔑 Step 9: Setting up GitHub repository access...${NC}"

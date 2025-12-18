@@ -72,11 +72,12 @@ helm-install-cert-manager: ## Install cert-manager (if enabled in env)
 		echo "Skipping cert-manager (disabled for $(ENV))"; \
 	fi
 
+# $(HELM_SECRETS_FLAG)
 helm-install-infra: ## Install infrastructure chart
 	@echo "Installing infrastructure (ENV=$(ENV), NS=$(K8S_NAMESPACE))..."
 	helm install wealist-infrastructure $(HELM_CHARTS_DIR)/wealist-infrastructure \
 		-f $(HELM_BASE_VALUES) \
-		-f $(HELM_ENV_VALUES) $(HELM_SECRETS_FLAG) \
+		-f $(HELM_ENV_VALUES)  \
 		-n $(K8S_NAMESPACE) --create-namespace
 	@echo "Infrastructure installed!"
 

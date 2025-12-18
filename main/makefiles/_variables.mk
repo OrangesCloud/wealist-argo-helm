@@ -9,7 +9,7 @@ IMAGE_TAG ?= latest
 
 # Environment configuration (used across all commands)
 # Options: local-kind, local-ubuntu, dev, staging, prod
-ENV ?= local-kind
+ENV ?= dev
 
 # Namespace mapping based on environment
 ifeq ($(ENV),local-kind)
