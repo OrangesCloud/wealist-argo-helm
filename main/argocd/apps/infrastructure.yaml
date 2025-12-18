@@ -16,7 +16,6 @@ spec:
         - values.yaml
         - ../../environments/base.yaml
         - ../../environments/dev.yaml
-        - ../../environments/dev-secrets.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: wealist-dev 
