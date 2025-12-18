@@ -91,7 +91,7 @@ echo ""
 
 # 5. SealedSecret으로 암호화
 echo -e "${YELLOW}5️⃣ Sealing secret with current cluster key...${NC}"
-OUTPUT_FILE="main/helm/charts/wealist-infrastructure/templates/sealed-secret-${ENVIRONMENT}.yaml"
+OUTPUT_FILE="secret/sealed-secret-${ENVIRONMENT}.yaml"
 
 mkdir -p "$(dirname "$OUTPUT_FILE")"
 

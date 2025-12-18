@@ -142,7 +142,7 @@ echo ""
 echo -e "${YELLOW}🔐 Step 8: Applying SealedSecrets...${NC}"
 
 # 프로젝트 루트 기준 경로
-SEALED_SECRET_FILE="main/helm/charts/wealist-infrastructure/templates/sealed-secret-dev.yaml"
+SEALED_SECRET_FILE="sealed-secrets/sealed-secret-dev.yaml"
 
 if [ -f "$SEALED_SECRET_FILE" ]; then
     kubectl apply -f "$SEALED_SECRET_FILE"

@@ -11,7 +11,7 @@ NC     := \033[0m
 
 # 변수
 CLUSTER_NAME ?= wealist-dev
-SEALED_SECRETS_KEY ?= sealed-secrets-dev-20251217-222517.key
+SEALED_SECRETS_KEY ?= sealed-secrets-dev-20251218-115135.key
 ENVIRONMENT ?= dev
 ENV ?= dev
 
