@@ -20,3 +20,8 @@ curl -s http://localhost:5001/v2/_catalog | jq
 - argocd/scripts/deploy-argocd.sh 수행할것
 - 끝
 ## dev 환경 방법
+```
+# argocd 비밀번호 
+kubectl -n argocd get secret argocd-initial-admin-secret \-o jsonpath="{.data.password}" | base64 -d
+
+```
