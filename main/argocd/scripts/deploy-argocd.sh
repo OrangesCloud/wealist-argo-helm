@@ -11,7 +11,7 @@ NC='\033[0m'
 
 # GitHub 저장소 정보
 REPO_URL="https://github.com/OrangesCloud/wealist-argo-helm.git"
-SEALED_SECRETS_KEY="${1:-sealed-secrets-dev-20251218-121235.key}"
+SEALED_SECRETS_KEY="${1}"
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -299,6 +299,7 @@ else
     echo -e "${YELLOW}⏭️  Step 13: Using existing key (no backup needed)${NC}"
 fi
 echo ""
+# kubectl patch secret wealist-argocd-secret -n wealist-dev --type='merge' -p='{"data":{"S3_ACCESS_KEY":"bWluaW9hZG1pbg==","S3_SECRET_KEY":"bWluaW9hZG1pbg=="}}'
 
 # ============================================
 # 14. ArgoCD 비밀번호

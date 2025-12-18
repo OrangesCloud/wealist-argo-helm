@@ -11,7 +11,7 @@ NC     := \033[0m
 
 # 변수
 CLUSTER_NAME ?= wealist-dev
-SEALED_SECRETS_KEY ?= main/argocd/scripts/sealed-secrets-dev-20251218-142304.key
+SEALED_SECRETS_KEY ?= main/argocd/scripts/sealed-secrets-dev-20251218-152119.key
 ENVIRONMENT ?= dev
 ENV ?= dev
 
