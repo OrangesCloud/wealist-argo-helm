@@ -81,7 +81,7 @@ sealed-secrets-*.key
 !main/argocd/sealed-secrets/
 !main/argocd/sealed-secrets/*.yaml
 !main/argocd/sealed-secrets/**/*.yaml
-
+!main/helm/charts/wealist-infrastructure/templates/shared-secret.yaml
 # Allow sealed-secret pattern files anywhere
 !**/sealed-secret-*.yaml
 !**/sealed-secret.yaml
