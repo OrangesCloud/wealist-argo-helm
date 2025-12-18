@@ -72,11 +72,11 @@ cat > $TEMP_SECRET <<EOF
 apiVersion: v1
 kind: Secret
 metadata:
-  name: wealist-shared-secret
+  name: wealist-argocd-secret
   namespace: ${NAMESPACE}
   labels:
     app.kubernetes.io/component: shared-secret
-    app.kubernetes.io/name: wealist-infrastructure
+    app.kubernetes.io/name: wealist-argocd-secrets 
 type: Opaque
 stringData:
   GIT_ACCESS: "${GIT_ACCESS}"
