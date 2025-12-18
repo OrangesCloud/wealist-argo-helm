@@ -25,7 +25,7 @@ certManager:
 # Deployment Settings
 # -----------------------------------------------------------------------------
 auth-service:
-  replicaCount: 2
+  replicaCount: 1
 board-service:
   replicaCount: 1
 
@@ -99,7 +99,7 @@ shared:
     # Google redirects here after user authenticates (must match Google Console)
     OAUTH2_CLIENT_REDIRECT_URI: "https://api.dev.wealist.co.kr/oauth2/callback/google"
     # auth-service redirects here (frontend) after processing OAuth
-    OAUTH2_REDIRECT_URL_ENV: "https://api.wealist.co.kr/oauth/callback"
+    OAUTH2_REDIRECT_URL_ENV: "https://dev.wealist.co.kr/oauth/callback"
 
 # -----------------------------------------------------------------------------
 # Ingress (HTTP only - CloudFront handles SSL termination)
