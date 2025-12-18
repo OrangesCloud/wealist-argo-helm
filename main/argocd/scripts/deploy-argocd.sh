@@ -152,13 +152,13 @@ if [ -f "$SEALED_SECRET_FILE" ]; then
     echo "⏳ Waiting for decryption..."
     sleep 15
     
-    if kubectl get secret wealist-shared-secret -n wealist-dev &> /dev/null; then
+    if kubectl get secret wealist-argocd-secret -n wealist-dev &> /dev/null; then
         echo -e "${GREEN}✅ Secret successfully decrypted!${NC}"
     else
-        echo -e "${RED}❌ Failed to decrypt secret: wealist-shared-secret${NC}"
+        echo -e "${RED}❌ Failed to decrypt secret: wealist-argocd-secret${NC}"
         echo ""
         echo "Checking SealedSecret status..."
-        kubectl describe sealedsecret wealist-shared-secret -n wealist-dev 2>/dev/null || true
+        kubectl describe sealedsecret wealist-argocd-secret -n wealist-dev 2>/dev/null || true
         
         if [ "$USE_EXISTING_KEY" = false ]; then
             echo ""

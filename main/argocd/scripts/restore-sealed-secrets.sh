@@ -42,7 +42,7 @@ kubeseal --fetch-cert \
   --controller-name=sealed-secrets \
   > /tmp/current-cluster-cert.pem
 
-echo "Current cluster public key:"
+echo "Current cluster public key fingerprint:"
 cat /tmp/current-cluster-cert.pem | head -5
 echo "..."
 echo -e "${GREEN}✅ Certificate fetched${NC}"
@@ -66,7 +66,7 @@ echo ""
 
 # 4. 임시 평문 Secret 생성
 echo -e "${YELLOW}4️⃣ Creating temporary plain secret...${NC}"
-TEMP_SECRET="/tmp/wealist-secret-${ENVIRONMENT}-$(date +%s).yaml"
+TEMP_SECRET="/tmp/wealist-argocd-secret-${ENVIRONMENT}-$(date +%s).yaml"
 
 cat > $TEMP_SECRET <<EOF
 apiVersion: v1
@@ -76,7 +76,7 @@ metadata:
   namespace: ${NAMESPACE}
   labels:
     app.kubernetes.io/component: shared-secret
-    app.kubernetes.io/name: wealist-argocd-secrets 
+    app.kubernetes.io/name: wealist-argocd-secrets
 type: Opaque
 stringData:
   GIT_ACCESS: "${GIT_ACCESS}"
@@ -91,7 +91,15 @@ echo ""
 
 # 5. SealedSecret으로 암호화
 echo -e "${YELLOW}5️⃣ Sealing secret with current cluster key...${NC}"
-OUTPUT_FILE="secret/sealed-secret-${ENVIRONMENT}.yaml"
+
+# 프로젝트 루트 찾기
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+OUTPUT_FILE="${PROJECT_ROOT}/main/argocd/sealed-secrets/wealist-argocd-secret.yaml"
+
+echo "Project root: ${PROJECT_ROOT}"
+echo "Output file: ${OUTPUT_FILE}"
+echo ""
 
 mkdir -p "$(dirname "$OUTPUT_FILE")"
 
@@ -129,11 +137,11 @@ echo "This may take up to 30 seconds..."
 
 SUCCESS=false
 for i in {1..30}; do
-    if kubectl get secret wealist-shared-secret -n $NAMESPACE &> /dev/null; then
+    if kubectl get secret wealist-argocd-secret -n $NAMESPACE &> /dev/null; then
         echo ""
         echo -e "${GREEN}✅ SUCCESS! Secret decrypted successfully!${NC}"
         echo ""
-        kubectl get secret wealist-shared-secret -n $NAMESPACE
+        kubectl get secret wealist-argocd-secret -n $NAMESPACE
         SUCCESS=true
         break
     fi
@@ -148,7 +156,7 @@ if [ "$SUCCESS" = false ]; then
     echo "Debugging information:"
     echo ""
     echo "SealedSecret status:"
-    kubectl describe sealedsecret wealist-shared-secret -n $NAMESPACE 2>/dev/null || echo "Not found"
+    kubectl describe sealedsecret wealist-argocd-secret -n $NAMESPACE 2>/dev/null || echo "Not found"
     echo ""
     echo "Controller logs:"
     kubectl logs -n kube-system -l app.kubernetes.io/name=sealed-secrets --tail=20
@@ -173,6 +181,10 @@ echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━
 echo -e "${GREEN}✅ Re-sealing Complete!${NC}"
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
+echo -e "${BLUE}📝 Files Created:${NC}"
+echo "  - ${OUTPUT_FILE} (SealedSecret for cluster)"
+echo "  - ${BACKUP_FILE} (Private key backup - KEEP SECURE!)"
+echo ""
 echo -e "${BLUE}📝 Next Steps:${NC}"
 echo ""
 echo "1. Review the sealed secret:"
@@ -180,26 +192,41 @@ echo "   cat ${OUTPUT_FILE}"
 echo ""
 echo "2. Commit to Git:"
 echo "   git add ${OUTPUT_FILE}"
-echo "   git commit -m 'Re-seal secrets for ${ENVIRONMENT} environment'"
-echo "   git push origin ${ENVIRONMENT}"
+echo "   git commit -m 're-seal secrets for ${ENVIRONMENT} with new cluster key'"
+echo "   git push"
 echo ""
-echo "3. ${RED}CRITICAL: Backup the key securely!${NC}"
+echo "3. ${RED}CRITICAL: Backup the private key securely!${NC}"
 echo "   File: ${BACKUP_FILE}"
 echo ""
-echo "   Options:"
-echo "   - Store in 1Password/LastPass"
-echo "   - Upload to AWS Secrets Manager"
-echo "   - Encrypt and store in private repo:"
-echo "     gpg --symmetric --cipher-algo AES256 ${BACKUP_FILE}"
-echo "     git add ${BACKUP_FILE}.gpg"
+echo "   Recommended secure storage options:"
+echo "   a) Password Manager (1Password/LastPass/Bitwarden)"
+echo "   b) AWS Secrets Manager / Google Secret Manager"
+echo "   c) Encrypted backup:"
+echo "      gpg --symmetric --cipher-algo AES256 ${BACKUP_FILE}"
+echo "      # Store ${BACKUP_FILE}.gpg in secure private location"
+echo "      # Delete unencrypted ${BACKUP_FILE}"
 echo ""
-echo "4. Add plain key to .gitignore:"
+echo "4. Add key files to .gitignore:"
 echo "   echo '*.key' >> .gitignore"
 echo "   echo 'sealed-secrets-*.key' >> .gitignore"
+echo "   git add .gitignore"
+echo "   git commit -m 'ignore sealed-secrets key files'"
 echo ""
-echo -e "${YELLOW}⚠️  IMPORTANT:${NC}"
-echo "   - DO NOT commit ${BACKUP_FILE} to Git!"
-echo "   - Keep it in a secure location"
-echo "   - Use this key file for future cluster recreations"
+echo -e "${YELLOW}⚠️  CRITICAL WARNINGS:${NC}"
+echo "   - ${RED}NEVER commit ${BACKUP_FILE} to Git in plain text!${NC}"
+echo "   - Without this key, you cannot decrypt existing SealedSecrets"
+echo "   - You'll need this key when recreating the cluster"
+echo "   - Store it in at least 2 secure locations"
+echo ""
+echo -e "${BLUE}🔍 Verify Everything:${NC}"
+echo "   kubectl get secrets -n ${NAMESPACE}"
+echo "   kubectl get sealedsecrets -n ${NAMESPACE}"
+echo "   kubectl describe sealedsecret wealist-argocd-secret -n ${NAMESPACE}"
 echo ""
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+echo -e "${BLUE}💡 For future cluster migrations:${NC}"
+echo "   Use this key file: ${BACKUP_FILE}"
+echo "   Run: kubectl apply -f ${BACKUP_FILE}"
+echo "   Then restart sealed-secrets controller"
+echo ""
