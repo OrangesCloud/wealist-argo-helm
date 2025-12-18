@@ -11,7 +11,7 @@ NC='\033[0m'
 
 # GitHub 저장소 정보
 REPO_URL="https://github.com/OrangesCloud/wealist-argo-helm.git"
-SEALED_SECRETS_KEY="${1:sealed-secrets-dev-20251218-115135.key}"
+SEALED_SECRETS_KEY="${1:-sealed-secrets-dev-20251218-121235.key}"
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -142,7 +142,7 @@ echo ""
 echo -e "${YELLOW}🔐 Step 8: Applying SealedSecrets...${NC}"
 
 # 프로젝트 루트 기준 경로
-SEALED_SECRET_FILE="sealed-secrets/sealed-secret-dev.yaml"
+SEALED_SECRET_FILE="main/argocd/scripts/secret/sealed-secret-dev.yaml"
 
 if [ -f "$SEALED_SECRET_FILE" ]; then
     kubectl apply -f "$SEALED_SECRET_FILE"
@@ -155,8 +155,9 @@ if [ -f "$SEALED_SECRET_FILE" ]; then
     if kubectl get secret wealist-shared-secret -n wealist-dev &> /dev/null; then
         echo -e "${GREEN}✅ Secret successfully decrypted!${NC}"
     else
-        echo -e "${RED}❌ Secret not created${NC}"
-        echo "Checking status..."
+        echo -e "${RED}❌ Failed to decrypt secret: wealist-shared-secret${NC}"
+        echo ""
+        echo "Checking SealedSecret status..."
         kubectl describe sealedsecret wealist-shared-secret -n wealist-dev 2>/dev/null || true
         
         if [ "$USE_EXISTING_KEY" = false ]; then
@@ -165,13 +166,32 @@ if [ -f "$SEALED_SECRET_FILE" ]; then
             echo -e "${YELLOW}⚠️  This is EXPECTED with new keys!${NC}"
             echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
             echo ""
-            echo "You need to re-seal the secrets:"
+            echo "You need to re-seal the secrets with the new key:"
             echo "  cd main/helm/charts/wealist-infrastructure/templates"
             echo "  # Create plain secret, then:"
             echo "  kubeseal -f secret.yaml -w sealed-secret-dev.yaml \\"
             echo "    --controller-namespace=kube-system \\"
             echo "    --controller-name=sealed-secrets"
             echo ""
+        else
+            echo ""
+            echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+            echo -e "${RED}⚠️  DECRYPTION FAILED WITH RESTORED KEY!${NC}"
+            echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+            echo ""
+            echo "Possible causes:"
+            echo "  1. Wrong key file was provided"
+            echo "  2. SealedSecret was encrypted with a different key"
+            echo "  3. Controller not using the restored key"
+            echo ""
+            echo "Troubleshooting:"
+            echo "  # Check controller logs:"
+            echo "  kubectl logs -n kube-system -l app.kubernetes.io/name=sealed-secrets"
+            echo ""
+            echo "  # Verify key fingerprint:"
+            echo "  kubeseal --fetch-cert --controller-namespace=kube-system"
+            echo ""
+            exit 1
         fi
     fi
 else
@@ -195,8 +215,14 @@ if [ -f "$ARGOCD_SEALED_SECRET" ]; then
     if kubectl get secret wealist-argocd-secret -n wealist-dev &> /dev/null; then
         echo -e "${GREEN}✅ ArgoCD secret successfully decrypted!${NC}"
     else
-        echo -e "${YELLOW}⚠️  ArgoCD secret not yet decrypted${NC}"
-        echo "This may be normal if using new keys"
+        echo -e "${RED}❌ Failed to decrypt secret: wealist-argocd-secret${NC}"
+        
+        if [ "$USE_EXISTING_KEY" = false ]; then
+            echo -e "${YELLOW}⚠️  This is expected with new keys - you need to re-seal this secret too${NC}"
+        else
+            echo -e "${RED}⚠️  Decryption failed with restored key${NC}"
+            echo "This secret may have been encrypted with a different key"
+        fi
     fi
 else
     echo -e "${YELLOW}⚠️  ArgoCD SealedSecret file not found: $ARGOCD_SEALED_SECRET${NC}"
