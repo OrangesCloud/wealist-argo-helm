@@ -62,9 +62,29 @@ uploads/
 storage/
 files/
 
+# ============================================
+# Kubernetes Secrets & Keys
+# ============================================
 
-# Helm secrets
-main/helm/environments/*-secrets.yaml
+# 1. NEVER commit plain text secrets
+*-secret.yaml
+*-secrets.yaml
+secret.yaml
+secrets.yaml
+
+# 2. NEVER commit private keys
+*.key
+sealed-secrets-*.key
+
+# 3. EXCEPT: SealedSecrets are safe to commit (encrypted)
+# Allow all files in the sealed-secrets directory
+!main/argocd/sealed-secrets/
+!main/argocd/sealed-secrets/*.yaml
+!main/argocd/sealed-secrets/**/*.yaml
+!main/helm/charts/wealist-infrastructure/templates/shared-secret.yaml
+# Allow sealed-secret pattern files anywhere
+!**/sealed-secret-*.yaml
+!**/sealed-secret.yaml
 
 # ============================================
 # Log Files
