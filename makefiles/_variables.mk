@@ -9,7 +9,7 @@ IMAGE_TAG ?= latest
 
 # Environment configuration (used across all commands)
 # Options: local-kind, local-ubuntu, dev, staging, prod
-ENV ?= dev
+ENV ?=dev# DEV 환경이라 DEV로 고정함
 
 # Namespace mapping based on environment
 ifeq ($(ENV),local-kind)
@@ -27,8 +27,8 @@ else
 endif
 
 # Helm paths
-HELM_CHARTS_DIR = ./main/helm/charts
-HELM_ENVS_DIR = ./main/helm/environments
+HELM_CHARTS_DIR = ./k8s/helm/charts
+HELM_ENVS_DIR = ./k8s/helm/environments
 
 # Helm values file paths
 HELM_BASE_VALUES = $(HELM_ENVS_DIR)/base.yaml

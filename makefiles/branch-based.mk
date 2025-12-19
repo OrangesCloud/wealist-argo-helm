@@ -18,7 +18,7 @@ deploy-dev: ## Deploy to dev environment (switches to dev branch)
 	@git stash push -m "Auto-stash before dev deploy" 2>/dev/null || true
 	@git checkout $(DEV_BRANCH)
 	@git pull origin $(DEV_BRANCH)
-	@cd main && $(MAKE) helm-install-all K8S_NAMESPACE=wealist-dev
+	@$(MAKE) helm-install-all K8S_NAMESPACE=wealist-dev
 	@echo "✅ Dev deployment complete!"
 
 deploy-staging: ## Deploy to staging environment (switches to staging branch)
@@ -26,7 +26,7 @@ deploy-staging: ## Deploy to staging environment (switches to staging branch)
 	@git stash push -m "Auto-stash before staging deploy" 2>/dev/null || true
 	@git checkout $(STAGING_BRANCH)
 	@git pull origin $(STAGING_BRANCH)
-	@cd main && $(MAKE) helm-install-all K8S_NAMESPACE=wealist-staging
+	@$(MAKE) helm-install-all K8S_NAMESPACE=wealist-staging
 	@echo "✅ Staging deployment complete!"
 
 deploy-prod: ## Deploy to production (switches to prod branch)
@@ -36,7 +36,7 @@ deploy-prod: ## Deploy to production (switches to prod branch)
 	@git stash push -m "Auto-stash before prod deploy" 2>/dev/null || true
 	@git checkout $(PROD_BRANCH)
 	@git pull origin $(PROD_BRANCH)
-	@cd main && $(MAKE) helm-install-all K8S_NAMESPACE=wealist-prod
+	@$(MAKE) helm-install-all K8S_NAMESPACE=wealist-prod
 	@echo "✅ Production deployment complete!"
 
 switch-to-dev: ## Switch to dev branch

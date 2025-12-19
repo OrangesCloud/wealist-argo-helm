@@ -34,10 +34,10 @@ helm-lint: ## Lint all Helm charts
 
 helm-validate: ## Run comprehensive Helm validation
 	@echo "Running comprehensive Helm validation..."
-	@./main/helm/scripts/validate-all-charts.sh
+	@./k8s/helm/scripts/validate-all-charts.sh
 	@echo ""
 	@echo "Running ArgoCD Applications validation..."
-	@./main/argocd/scripts/validate-applications.sh
+	@./k8s/argocd/scripts/validate-applications.sh
 
 ##@ Helm Installation
 
@@ -77,7 +77,7 @@ helm-install-infra: ## Install infrastructure chart
 	@echo "Installing infrastructure (ENV=$(ENV), NS=$(K8S_NAMESPACE))..."
 	helm install wealist-infrastructure $(HELM_CHARTS_DIR)/wealist-infrastructure \
 		-f $(HELM_BASE_VALUES) \
-		-f $(HELM_ENV_VALUES)  \
+		-f $(HELM_ENV_VALUES) \
 		-n $(K8S_NAMESPACE) --create-namespace
 	@echo "Infrastructure installed!"
 

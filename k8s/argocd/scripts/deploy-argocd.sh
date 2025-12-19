@@ -11,7 +11,7 @@ NC='\033[0m'
 
 # GitHub 저장소 정보
 REPO_URL="https://github.com/OrangesCloud/wealist-argo-helm.git"
-SEALED_SECRETS_KEY="${1}"
+SEALED_SECRETS_KEY="${1:-sealed-secrets-dev-20251218-121235.key}"
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -142,7 +142,7 @@ echo ""
 echo -e "${YELLOW}🔐 Step 8: Applying SealedSecrets...${NC}"
 
 # 프로젝트 루트 기준 경로
-SEALED_SECRET_FILE="main/argocd/scripts/secret/sealed-secret-dev.yaml"
+SEALED_SECRET_FILE="k8s/argocd/scripts/secret/sealed-secret-dev.yaml"
 
 if [ -f "$SEALED_SECRET_FILE" ]; then
     kubectl apply -f "$SEALED_SECRET_FILE"
@@ -167,7 +167,7 @@ if [ -f "$SEALED_SECRET_FILE" ]; then
             echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
             echo ""
             echo "You need to re-seal the secrets with the new key:"
-            echo "  cd main/helm/charts/wealist-infrastructure/templates"
+            echo "  cd k8s/helm/charts/wealist-infrastructure/templates"
             echo "  # Create plain secret, then:"
             echo "  kubeseal -f secret.yaml -w sealed-secret-dev.yaml \\"
             echo "    --controller-namespace=kube-system \\"
@@ -203,7 +203,7 @@ echo ""
 # 8.5. ArgoCD SealedSecret 적용
 # ============================================
 echo -e "${YELLOW}🔐 Step 8.5: Applying ArgoCD SealedSecret...${NC}"
-ARGOCD_SEALED_SECRET="main/argocd/sealed-secrets/wealist-argocd-secret.yaml"
+ARGOCD_SEALED_SECRET="k8s/argocd/sealed-secrets/wealist-argocd-secret.yaml"
 if [ -f "$ARGOCD_SEALED_SECRET" ]; then
     kubectl apply -f "$ARGOCD_SEALED_SECRET"
     echo -e "${GREEN}✅ ArgoCD SealedSecret applied${NC}"
@@ -264,7 +264,7 @@ echo ""
 # 11. AppProject 생성
 # ============================================
 echo -e "${YELLOW}🎯 Step 11: Creating AppProject...${NC}"
-PROJECT_FILE="main/argocd/apps/project.yaml"
+PROJECT_FILE="k8s/argocd/apps/project.yaml"
 if [ -f "$PROJECT_FILE" ]; then
     kubectl apply -f "$PROJECT_FILE"
     echo -e "${GREEN}✅ AppProject created${NC}"
@@ -277,7 +277,7 @@ echo ""
 # 12. Root Application 생성
 # ============================================
 echo -e "${YELLOW}🌟 Step 12: Creating Root Application...${NC}"
-ROOT_APP_FILE="main/argocd/apps/root-app.yaml"
+ROOT_APP_FILE="k8s/argocd/apps/root-app.yaml"
 if [ -f "$ROOT_APP_FILE" ]; then
     kubectl apply -f "$ROOT_APP_FILE"
     echo -e "${GREEN}✅ Root Application created${NC}"

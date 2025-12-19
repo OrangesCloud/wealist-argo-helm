@@ -95,7 +95,7 @@ echo -e "${YELLOW}5️⃣ Sealing secret with current cluster key...${NC}"
 # 프로젝트 루트 찾기
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-OUTPUT_FILE="${PROJECT_ROOT}/main/argocd/sealed-secrets/wealist-argocd-secret.yaml"
+OUTPUT_FILE="${PROJECT_ROOT}/k8s/argocd/sealed-secrets/wealist-argocd-secret.yaml"
 
 echo "Project root: ${PROJECT_ROOT}"
 echo "Output file: ${OUTPUT_FILE}"

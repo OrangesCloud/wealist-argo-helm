@@ -8,7 +8,7 @@
 
 kind-setup: ## Create cluster + registry
 	@echo "=== Step 1: Creating Kind cluster with local registry ==="
-	./docker/scripts/dev/0.setup-cluster.sh
+	./k8s/installShell/0.setup-cluster.sh
 	@echo ""
 	@echo "Cluster ready! Next: make kind-load-images"
 
@@ -16,10 +16,10 @@ kind-load-images: ## Build/pull all images (infra + services)
 	@echo "=== Step 2: Loading all images ==="
 	@echo ""
 	@echo "--- Loading infrastructure images ---"
-	./docker/scripts/dev/1.load_infra_images.sh
+	./k8s/installShell/1.load_infra_images.sh
 	@echo ""
 	@echo "--- Building service images ---"
-	./docker/scripts/dev/2.build_services_and_load.sh
+	./k8s/installShell/2.build_services_and_load.sh
 	@echo ""
 	@echo "All images loaded!"
 	@echo ""
@@ -29,10 +29,10 @@ kind-load-images-mono: ## Build Go services with monorepo pattern (faster rebuil
 	@echo "=== Loading images using Monorepo Build (BuildKit cache) ==="
 	@echo ""
 	@echo "--- Loading infrastructure images ---"
-	./docker/scripts/dev/1.load_infra_images.sh
+	./k8s/installShell/1.load_infra_images.sh
 	@echo ""
 	@echo "--- Building Go services (monorepo pattern) ---"
-	./docker/scripts/dev-mono.sh build
+	./k8s/installShell/2.build_services_and_load.sh
 	@echo ""
 	@echo "--- Tagging and pushing to local registry ---"
 	@for svc in user-service board-service chat-service noti-service storage-service video-service; do \

@@ -11,13 +11,12 @@ NC     := \033[0m
 
 # 변수
 CLUSTER_NAME ?= wealist-dev
-SEALED_SECRETS_KEY ?= sealed-secrets-dev-20251217-222517.key
+SEALED_SECRETS_KEY ?= k8s/argocd/scripts/sealed-secrets-dev-20251218-152119.key
 ENVIRONMENT ?= dev
 ENV ?= dev
 
-# Include common variables and helm targets
-include main/makefiles/_variables.mk
-include main/makefiles/helm.mk
+# Include common variables
+include makefiles/_variables.mk
 help: ## 도움말 표시
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "  Wealist Platform - Make Commands"
@@ -65,7 +64,7 @@ all-simple: cluster-up helm-install-infra bootstrap deploy ## 전체 프로세�
 # ============================================
 
 cluster-up: ## Kind 클러스터 + 로컬 레지스트리 + 이미지 준비
-	@echo -e "$(YELLOW)📦 Kind 클러스터 생성 중...$(NC)"
+	@echo -e "$(YELLOW)📦 Kind 클러스터 + 로컬 환경 설정 중...$(NC)"
 	@if kind get clusters | grep -q "$(CLUSTER_NAME)"; then \
 		echo -e "$(YELLOW)⚠️  클러스터가 이미 존재합니다: $(CLUSTER_NAME)$(NC)"; \
 		read -p "삭제하고 다시 만들까요? (y/N): " answer; \
@@ -73,27 +72,58 @@ cluster-up: ## Kind 클러스터 + 로컬 레지스트리 + 이미지 준비
 			$(MAKE) cluster-down; \
 		else \
 			echo "기존 클러스터를 사용합니다."; \
+			$(MAKE) load-images-only; \
 			exit 0; \
 		fi; \
 	fi
-	@if [ -f "main/installShell/kind-config.yaml" ]; then \
-		kind create cluster --name $(CLUSTER_NAME) --config main/installShell/kind-config.yaml; \
+	@echo -e "$(YELLOW)🏗️  Step 1: 클러스터 + 레지스트리 생성...$(NC)"
+	@if [ -f "k8s/installShell/0.setup-cluster.sh" ]; then \
+		chmod +x k8s/installShell/0.setup-cluster.sh; \
+		cd k8s/installShell && ./0.setup-cluster.sh; \
 	else \
-		kind create cluster --name $(CLUSTER_NAME); \
+		echo -e "$(RED)❌ 0.setup-cluster.sh not found$(NC)"; \
+		exit 1; \
+	fi
+	@echo -e "$(YELLOW)📦 Step 2: 인프라 이미지 로드...$(NC)"
+	@if [ -f "k8s/installShell/1.load_infra_images.sh" ]; then \
+		chmod +x k8s/installShell/1.load_infra_images.sh; \
+		cd k8s/installShell && ./1.load_infra_images.sh; \
+	else \
+		echo -e "$(RED)❌ 1.load_infra_images.sh not found$(NC)"; \
+		exit 1; \
+	fi
+	@echo -e "$(YELLOW)🔨 Step 3: 서비스 이미지 빌드 및 로드...$(NC)"
+	@if [ -f "k8s/installShell/2.build_services_and_load.sh" ]; then \
+		chmod +x k8s/installShell/2.build_services_and_load.sh; \
+		cd k8s/installShell && ./2.build_services_and_load.sh; \
+	else \
+		echo -e "$(RED)❌ 2.build_services_and_load.sh not found$(NC)"; \
+		exit 1; \
 	fi
 	@kubectl cluster-info
-	@echo -e "$(GREEN)✅ 클러스터 생성 완료$(NC)"
+	@echo -e "$(GREEN)✅ 클러스터 + 로컬 환경 준비 완료$(NC)"
 
 load-images-only: ## 이미지만 로드 (기존 클러스터용)
-	@echo -e "$(YELLOW)� 인프클라 이미지 로드...$(NC)"
-	@if [ -f "main/installShell/1.load_infra_images.sh" ]; then \
-		chmod +x main/installShell/1.load_infra_images.sh; \
-		cd main/installShell && ./1.load_infra_images.sh; \
+	@echo -e "$(YELLOW)📦 인프라 이미지 로드...$(NC)"
+	@if [ -f "k8s/installShell/1.load_infra_images.sh" ]; then \
+		chmod +x k8s/installShell/1.load_infra_images.sh; \
+		cd k8s/installShell && ./1.load_infra_images.sh; \
 	fi
 	@echo -e "$(YELLOW)🔨 서비스 이미지 빌드 및 로드...$(NC)"
-	@if [ -f "main/installShell/2.build_services_and_load.sh" ]; then \
-		chmod +x main/installShell/2.build_services_and_load.sh; \
-		cd main/installShell && ./2.build_services_and_load.sh; \
+	@if [ -f "k8s/installShell/2.build_services_and_load.sh" ]; then \
+		chmod +x k8s/installShell/2.build_services_and_load.sh; \
+		cd k8s/installShell && ./2.build_services_and_load.sh; \
+	fi
+	@echo -e "$(GREEN)✅ 이미지 로드 완료$(NC)"
+	@echo -e "$(YELLOW)� 인프클라 이미지 로드...$(NC)"
+	@if [ -f "k8s/installShell/1.load_infra_images.sh" ]; then \
+		chmod +x k8s/installShell/1.load_infra_images.sh; \
+		cd k8s/installShell && ./1.load_infra_images.sh; \
+	fi
+	@echo -e "$(YELLOW)🔨 서비스 이미지 빌드 및 로드...$(NC)"
+	@if [ -f "k8s/installShell/2.build_services_and_load.sh" ]; then \
+		chmod +x k8s/installShell/2.build_services_and_load.sh; \
+		cd k8s/installShell && ./2.build_services_and_load.sh; \
 	fi
 	@echo -e "$(GREEN)✅ 이미지 로드 완료$(NC)"
 
@@ -108,8 +138,8 @@ cluster-down: ## Kind 클러스터 삭제
 
 bootstrap: check-key ## ArgoCD & Sealed Secrets 설치 (키 복원 포함)
 	@echo -e "$(YELLOW)🚀 Bootstrap 시작...$(NC)"
-	@chmod +x main/argocd/scripts/deploy-argocd.sh
-	@./main/argocd/scripts/deploy-argocd.sh $(SEALED_SECRETS_KEY)
+	@chmod +x k8s/argocd/scripts/deploy-argocd.sh
+	@./k8s/argocd/scripts/deploy-argocd.sh $(SEALED_SECRETS_KEY)
 
 check-key: ## Sealed Secrets 키 파일 확인
 	@if [ ! -f "$(SEALED_SECRETS_KEY)" ]; then \
@@ -128,8 +158,8 @@ check-key: ## Sealed Secrets 키 파일 확인
 
 bootstrap-without-key: ## 키 없이 Bootstrap (새 키 생성)
 	@echo -e "$(YELLOW)⚠️  키 없이 진행 - 새 키가 생성됩니다$(NC)"
-	@chmod +x main/argocd/scripts/deploy-argocd.sh
-	@./main/argocd/scripts/deploy-argocd.sh
+	@chmod +x k8s/argocd/scripts/deploy-argocd.sh
+	@./k8s/argocd/scripts/deploy-argocd.sh
 
 # ============================================
 # 배포
@@ -137,8 +167,8 @@ bootstrap-without-key: ## 키 없이 Bootstrap (새 키 생성)
 
 deploy: ## Applications 배포 (Root App 생성)
 	@echo -e "$(YELLOW)🎯 Applications 배포 중...$(NC)"
-	@kubectl apply -f main/argocd/apps/project.yaml || true
-	@kubectl apply -f main/argocd/apps/root-app.yaml || true
+	@kubectl apply -f k8s/argocd/apps/project.yaml || true
+	@kubectl apply -f k8s/argocd/apps/root-app.yaml || true
 	@echo -e "$(GREEN)✅ 배포 완료$(NC)"
 	@echo ""
 	@echo "Applications 확인:"
@@ -220,8 +250,8 @@ logs-sealed: ## Sealed Secrets Controller 로그
 
 seal-secrets: ## Secrets 재암호화
 	@echo -e "$(YELLOW)🔐 Secrets 재암호화...$(NC)"
-	@chmod +x main/argocd/scripts/re-seal-secrets-complete.sh
-	@./main/argocd/scripts/re-seal-secrets-complete.sh $(ENVIRONMENT)
+	@chmod +x k8s/argocd/scripts/re-seal-secrets-complete.sh
+	@./k8s/argocd/scripts/re-seal-secrets-complete.sh $(ENVIRONMENT)
 
 backup-keys: ## Sealed Secrets 키 백업
 	@echo -e "$(YELLOW)💾 키 백업 중...$(NC)"
@@ -326,9 +356,9 @@ setup-local: ## 로컬 개발 환경 전체 설정 (Registry + 이미지 + Boots
 
 kind-setup: ## Kind 클러스터 + 로컬 Registry 생성
 	@echo -e "$(YELLOW)🏗️  Kind 클러스터 + Registry 설정...$(NC)"
-	@if [ -f "main/installShell/0.setup-cluster.sh" ]; then \
-		chmod +x main/installShell/0.setup-cluster.sh; \
-		cd main/installShell && ./0.setup-cluster.sh; \
+	@if [ -f "k8s/installShell/0.setup-cluster.sh" ]; then \
+		chmod +x k8s/installShell/0.setup-cluster.sh; \
+		cd k8s/installShell && ./0.setup-cluster.sh; \
 	else \
 		echo -e "$(RED)❌ 0.setup-cluster.sh not found$(NC)"; \
 		exit 1; \
@@ -337,9 +367,9 @@ kind-setup: ## Kind 클러스터 + 로컬 Registry 생성
 
 load-infra-images: ## 인프라 이미지 로드 (PostgreSQL, Redis 등)
 	@echo -e "$(YELLOW)📦 인프라 이미지 로드 중...$(NC)"
-	@if [ -f "main/installShell/1.load_infra_images.sh" ]; then \
-		chmod +x main/installShell/1.load_infra_images.sh; \
-		cd main/installShell && ./1.load_infra_images.sh; \
+	@if [ -f "k8s/installShell/1.load_infra_images.sh" ]; then \
+		chmod +x k8s/installShell/1.load_infra_images.sh; \
+		cd k8s/installShell && ./1.load_infra_images.sh; \
 	else \
 		echo -e "$(RED)❌ 1.load_infra_images.sh not found$(NC)"; \
 		exit 1; \
@@ -348,9 +378,9 @@ load-infra-images: ## 인프라 이미지 로드 (PostgreSQL, Redis 등)
 
 build-and-push: ## 서비스 이미지 빌드 및 푸시
 	@echo -e "$(YELLOW)🔨 서비스 이미지 빌드 및 푸시...$(NC)"
-	@if [ -f "main/installShell/2.build_services_and_load.sh" ]; then \
-		chmod +x main/installShell/2.build_services_and_load.sh; \
-		cd main/installShell && ./2.build_services_and_load.sh; \
+	@if [ -f "k8s/installShell/2.build_services_and_load.sh" ]; then \
+		chmod +x k8s/installShell/2.build_services_and_load.sh; \
+		cd k8s/installShell && ./2.build_services_and_load.sh; \
 	else \
 		echo -e "$(RED)❌ 2.build_services_and_load.sh not found$(NC)"; \
 		exit 1; \
@@ -409,8 +439,8 @@ cluster-up-simple: ## Kind 클러스터만 생성 (Registry 없이)
 			exit 0; \
 		fi; \
 	fi
-	@if [ -f "main/installShell/kind-config.yaml" ]; then \
-		kind create cluster --name $(CLUSTER_NAME) --config main/installShell/kind-config.yaml; \
+	@if [ -f "k8s/installShell/kind-config.yaml" ]; then \
+		kind create cluster --name $(CLUSTER_NAME) --config k8s/installShell/kind-config.yaml; \
 	else \
 		kind create cluster --name $(CLUSTER_NAME); \
 	fi

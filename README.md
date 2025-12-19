@@ -26,7 +26,7 @@
 다음 스크립트들을 순서대로 실행합니다:
 
 ```bash
-# main/installShell/ 디렉토리에서 실행
+# k8s/installShell/ 디렉토리에서 실행
 ./00-*.sh
 ./01-*.sh
 ./02-*.sh
@@ -49,7 +49,7 @@ make helm-install-all ENV=local-kind
 ### 5. ArgoCD 배포
 
 ```bash
-./argocd/scripts/deploy-argocd.sh
+./k8s/argocd/scripts/deploy-argocd.sh
 ```
 
 ✅ 로컬 환경 배포 완료!
@@ -64,7 +64,7 @@ Dev 환경의 암호화된 시크릿을 복호화하기 위한 키가 필요합�
 
 #### 키 파일 준비
 - **키 이름**: `sealed-secrets-dev-20251218-152119.key`
-- **저장 위치**: `main/argocd/scripts/sealed-secrets-dev-20251218-152119.key`
+- **저장 위치**: `k8s/argocd/scripts/sealed-secrets-dev-20251218-152119.key`
 - **키 복사**: xaczx 폴더에서 해당 키 파일을 복사하여 위 경로에 생성
 
 ### 2. GitHub Access Token 발급

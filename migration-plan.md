@@ -10,32 +10,32 @@
 ## 목표 구조
 ```
 main (브랜치) - Source of Truth
-├── helm/charts/
+├── k8s/helm/charts/
 │   ├── auth-service/
 │   │   ├── Chart.yaml
 │   │   ├── templates/
 │   │   └── values.yaml          # 기본값만 (base.yaml 내용 통합)
 │   └── ...
-├── argocd/apps/
+├── k8s/argocd/apps/
 │   ├── auth-service-dev.yaml    # dev 브랜치 참조
 │   ├── auth-service-staging.yaml
 │   └── auth-service-prod.yaml
 └── makefiles/                   # 공통 빌드 로직
 
 dev (브랜치)
-└── helm/charts/
+└── k8s/helm/charts/
     ├── auth-service/
     │   └── values.yaml          # dev 전용 설정
     └── ...
 
 staging (브랜치)
-└── helm/charts/
+└── k8s/helm/charts/
     ├── auth-service/
     │   └── values.yaml          # staging 전용 설정
     └── ...
 
 prod (브랜치)
-└── helm/charts/
+└── k8s/helm/charts/
     ├── auth-service/
     │   └── values.yaml          # prod 전용 설정
     └── ...

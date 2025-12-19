@@ -92,7 +92,7 @@ for app in "${HELM_APPS[@]}"; do
   fi
 
   # Check for helm path
-  if grep -q "path: helm/charts/" "$app_file"; then
+  if grep -q "path: k8s/helm/charts/" "$app_file"; then
     print_result "${app} uses Helm path" 0
   else
     print_result "${app} uses Helm path" 1
@@ -254,9 +254,9 @@ if [ $failed_tests -eq 0 ]; then
   echo "  - Total: 9 Helm-based Applications"
   echo ""
   echo "🚀 Next steps:"
-  echo "  1. Commit changes: git add argocd/"
+  echo "  1. Commit changes: git add k8s/argocd/"
   echo "  2. Push to repository"
-  echo "  3. Apply root-app: kubectl apply -f argocd/apps/root-app.yaml"
+  echo "  3. Apply root-app: kubectl apply -f k8s/argocd/apps/root-app.yaml"
   echo "  4. Monitor sync: argocd app list"
   exit 0
 else

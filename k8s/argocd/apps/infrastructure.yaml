@@ -10,12 +10,13 @@ spec:
   source:
     repoURL: https://github.com/OrangesCloud/wealist-argo-helm.git 
     targetRevision: dev
-    path: main/helm/charts/wealist-infrastructure
+    path: k8s/helm/charts/wealist-infrastructure
     helm:
       valueFiles:
         - values.yaml
         - ../../environments/base.yaml
         - ../../environments/dev.yaml
+        - ../../environments/dev-secrets.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: wealist-dev 

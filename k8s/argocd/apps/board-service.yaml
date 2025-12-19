@@ -10,11 +10,10 @@ spec:
   source:
     repoURL: https://github.com/OrangesCloud/wealist-argo-helm.git 
     targetRevision: dev
-    path: main/helm/charts/board-service
+    path: k8s/helm/charts/board-service
     helm:
       valueFiles:
         - values.yaml
-        - ../../environments/base.yaml
         - ../../environments/dev.yaml
       parameters:
         - name: image.tag
