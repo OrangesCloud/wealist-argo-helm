@@ -8,13 +8,13 @@ spec:
   source:
     repoURL: https://github.com/OrangesCloud/wealist-argo-helm
     targetRevision: security/kyverno
-    path: /k8s/security/policies
+    path: k8s/security/policies
     directory:
-      recurse: true #
+      recurse: true
   destination:
     server: https://kubernetes.default.svc
     namespace: kyverno
   syncPolicy:
     automated:
-      prune: true
+      prune: false
       selfHeal: true
