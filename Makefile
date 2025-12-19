@@ -15,11 +15,11 @@
 .DEFAULT_GOAL := help
 
 # Include all sub-makefiles
-include main/makefiles/_variables.mk
-include main/makefiles/kind.mk
-include main/makefiles/services.mk
-include main/makefiles/helm.mk
-include main/makefiles/branch-based.mk
+include makefiles/_variables.mk
+include makefiles/kind.mk
+include makefiles/services.mk
+include makefiles/helm.mk
+include makefiles/branch-based.mk
 
 ##@ General
 
