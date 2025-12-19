@@ -6,8 +6,8 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/OrangesCloud/wealist-argo-helm
-    targetRevision: security/kyverno
+    repoURL: https://github.com/OrangesCloud/wealist-argo-helm # 레포마다 URL이 바뀌어야합니다.
+    targetRevision: security/kyverno # 브랜치를 지정해주어야 합니다.
     path: k8s/security/policies
     directory:
       recurse: true

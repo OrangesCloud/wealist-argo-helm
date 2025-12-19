@@ -16,7 +16,7 @@ spec:
               kinds:
                 - Deployment
               namespaces:
-                - test-ns
+                - wealist-dev
       validate:
         message: "Deployment의 라벨에는 env가 포함되어야 하며, 값은 dev여야 합니다."
         pattern:
