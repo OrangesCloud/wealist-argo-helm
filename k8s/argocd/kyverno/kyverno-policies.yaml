@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/OrangesCloud/wealist-argo-helm
     targetRevision: security/kyverno
-    path: security/policies
+    path: /k8s/security/policies
     directory:
       recurse: true #
   destination:
